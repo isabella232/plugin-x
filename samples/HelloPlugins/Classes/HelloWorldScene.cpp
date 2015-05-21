@@ -1,13 +1,13 @@
 #include "HelloWorldScene.h"
-#include "TestAdsScene.h"
-#include "TestAnalyticsScene.h"
-#include "TestShareScene.h"
-#include "TestIAPScene.h"
-#include "TestIAPOnlineScene.h"
-#include "TestUserScene.h"
-#include "TestSocialScene.h"
-#include "TestFacebookUserScene.h"
-#include "TestFacebookShare.h"
+#include "TestAds\TestAdsScene.h"
+#include "TestAnalytics\TestAnalyticsScene.h"
+#include "TestShare\TestShareScene.h"
+#include "TestIAP\TestIAPScene.h"
+#include "TestIAPOnline\TestIAPOnlineScene.h"
+#include "TestUser\TestUserScene.h"
+#include "TestSocial\TestSocialScene.h"
+#include "TestFacebookUser\TestFacebookUserScene.h"
+#include "TestFacebookShare\TestFacebookShare.h"
 
 USING_NS_CC;
 
@@ -17,12 +17,10 @@ std::string g_testCases[] = {
     "Test Share",
     "Test Facebook User",
     "Test Facebook Share",
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     "Test IAP",
     "Test IAP Online",
     "Test User",
     "Test Social",
-#endif
 };
 
 Scene* HelloWorld::scene()
@@ -89,6 +87,7 @@ void HelloWorld::menuCallback(Ref* pSender)
     MenuItemFont *pItem = (MenuItemFont*) pSender;
     Scene* newScene = NULL;
     switch (pItem->getTag()) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     case 0:
         newScene = TestAds::scene();
         break;
@@ -104,9 +103,11 @@ void HelloWorld::menuCallback(Ref* pSender)
     case 4:
         newScene = TestFacebookShare::scene();
         break;
+#endif
     case 5:
         newScene = TestIAP::scene();
         break;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     case 6:
         newScene = TestIAPOnline::scene();
         break;
@@ -116,6 +117,7 @@ void HelloWorld::menuCallback(Ref* pSender)
     case 8:
         newScene = TestSocial::scene();
         break;
+#endif
     case 9:
         break;
     default:

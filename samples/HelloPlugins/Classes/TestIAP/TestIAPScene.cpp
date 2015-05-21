@@ -70,24 +70,75 @@ bool TestIAP::init()
 
     auto panel = Layout::create();
     panel->setAnchorPoint(Vec2(0.5,0.5));
-    panel->setPosition(Vec2(origin.x + winSize.width/2, origin.y + winSize.height/2));
+    panel->setPosition(Vec2(origin.x + winSize.width/2, origin.y + winSize.height - 50));
     panel->setLayoutType(LayoutType::VERTICAL);
     addChild(panel);
 
-    //Google IAP button
-    auto btnGoogle = Button::create("btn_normal.png","btn_pressed.png");
-    btnGoogle->setTitleText("Google");
-    btnGoogle->setScale(2);
-    btnGoogle->addClickEventListener([=](Ref* sender){
-    	//Perform IAP callback
-        TProductInfo pInfo;
+    LinearLayoutParameter* llp = LinearLayoutParameter::create();
+    llp->setGravity(LinearGravity::CENTER_HORIZONTAL);
+    llp->setMargin(Margin(0, 0, 0, 50));
+
+    auto purchaseButton = Button::create("btn_normal.png", "btn_pressed.png");
+    purchaseButton->setTitleText("test purchase");
+    purchaseButton->setScale(2);
+    purchaseButton->setLayoutParameter(llp);
+    purchaseButton->addClickEventListener([](Ref* pSender) {
         MyPurchase::MyPayMode mode = MyPurchase::MyPayMode::eGoogle;
-    	pInfo["IAPId"] = "android.test.purchased";
-        MyPurchase::getInstance()->payByMode(pInfo, mode);
-
+        std::map<std::string, std::string> productInfo;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    	productInfo["IAPId"] = "android.test.purchased";
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+        productInfo["product"] = "feature1";
+#endif
+        MyPurchase::getInstance()->payByMode(productInfo, MyPurchase::MyPayMode::eGoogle);
     });
-    panel->addChild(btnGoogle);    
+    panel->addChild(purchaseButton);
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 
+    auto purchaseConsumableButton = Button::create("btn_normal.png", "btn_pressed.png");
+    purchaseConsumableButton->setTitleText("test purchase consumable");
+    purchaseConsumableButton->setScale(2);
+    purchaseConsumableButton->setLayoutParameter(llp);
+    purchaseConsumableButton->addClickEventListener([](Ref* pSender) {
+        MyPurchase::MyPayMode mode = MyPurchase::MyPayMode::eGoogle;
+        std::map<std::string, std::string> productInfo;
+        productInfo["product"] = "consumable2";
+        MyPurchase::getInstance()->payByMode(productInfo, MyPurchase::MyPayMode::eGoogle);
+    });
+    panel->addChild(purchaseConsumableButton);
+
+    auto unfulfilledConsumablesButton = Button::create("btn_normal.png", "btn_pressed.png");
+    unfulfilledConsumablesButton->setTitleText("report consumable fulfillment");
+    unfulfilledConsumablesButton->setScale(2);
+    unfulfilledConsumablesButton->setLayoutParameter(llp);
+    unfulfilledConsumablesButton->addClickEventListener([](Ref* pSender) {
+        plugin::PluginParam productIdParam();
+        plugin::PluginParam transactionIdParam();
+        MyPurchase::getInstance()->reportConsumablePurchase("consumable1", "{00000001-0000-0000-0000-000000000000}");
+    });
+    panel->addChild(unfulfilledConsumablesButton);
+
+    auto allUnfulfilledButton = Button::create("btn_normal.png", "btn_pressed.png");
+    allUnfulfilledButton->setTitleText("get unfulfilled consumables");
+    allUnfulfilledButton->setScale(2);
+    allUnfulfilledButton->setLayoutParameter(llp);
+    allUnfulfilledButton->addClickEventListener([](Ref* pSender) {
+        std::string result = MyPurchase::getInstance()->getPlugin()->callStringFuncWithParam("getUnfulfilledConsumables", NULL);
+        MessageBox(result.c_str(), "Unfulfilled consumables result");
+    });
+    panel->addChild(allUnfulfilledButton);
+
+    auto listingItemsButton = Button::create("btn_normal.png", "btn_pressed.png");
+    listingItemsButton->setTitleText("get entitled durables");
+    listingItemsButton->setScale(2);
+    listingItemsButton->setLayoutParameter(llp);
+    listingItemsButton->addClickEventListener([](Ref* pSender) {
+        std::string result = MyPurchase::getInstance()->getPlugin()->callStringFuncWithParam("getEntitledDurables", NULL);
+        MessageBox(result.c_str(), "Product IDs");
+    });
+    panel->addChild(listingItemsButton);
+
+#endif
     return true;
 }
